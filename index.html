@@ -62,6 +62,8 @@
             border-radius: 8px;
             font-size: 20px;
             font-weight: bold;
+            display: flex;
+            align-items: center;
         }
         .balance-container span { color: var(--accent); }
 
@@ -200,9 +202,13 @@
     <div class="nav-links">
         <a class="nav-link active" onclick="switchPage('cases')">Кейсы</a>
         <a class="nav-link" onclick="switchPage('upgrade')">Апгрейды</a>
+        <a class="nav-link" onclick="switchPage('svo')">Контракт SVO</a>
         <a class="nav-link" onclick="switchPage('profile'); renderProfile()">Профиль</a>
     </div>
-    <div class="balance-container">Баланс: <span id="balance-display">100000</span> ₽</div>
+    <div class="balance-container">
+        Баланс: <span id="balance-display">100000</span> ₽ 
+        <button onclick="depositMoney()" style="padding: 2px 8px; margin-left: 10px; cursor: pointer; background: var(--accent); color: #000; border-radius: 4px; border: none; font-size: 16px; font-weight: bold;">+</button>
+    </div>
 </header>
 
 <div id="page-cases" class="page active">
@@ -259,6 +265,23 @@
     </div>
 </div>
 
+<div id="page-svo" class="page">
+    <h1 class="page-title">Контракт SVO (Multi-Upgrade)</h1>
+    <div style="text-align: center; color: var(--text-muted); margin-bottom: 20px;">
+        Выбери от 3 до 10 предметов. Твой выигрыш составит от 0.2x до 20x!
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+        <div id="svo-slots-container" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; min-height: 200px; border: 2px dashed #333; padding: 20px; width: 100%; border-radius: 15px; background: rgba(255,255,255,0.02);">
+            </div>
+        <div style="font-size: 24px;">Сумма контракта: <span id="svo-total-sum" style="color:var(--accent)">0</span> ₽</div>
+        <div style="display: flex; gap: 20px;">
+            <button class="btn-green" onclick="openSvoInv()">Добавить предметы</button>
+            <button class="btn-red" onclick="clearSvo()">Очистить</button>
+            <button class="btn-green" id="btn-do-svo" onclick="executeSvo()" style="background: var(--purple); color: white;" disabled>Подписать контракт!</button>
+        </div>
+    </div>
+</div>
+
 <div id="roulette-modal">
     <div class="roulette-header" id="roulette-status">Открытие кейса...</div>
     <div class="roulette-wrapper">
@@ -274,11 +297,20 @@
 <div id="mini-inv-modal">
     <div class="mini-inv-content">
         <h2 style="margin-bottom: 20px; display: flex; justify-content: space-between;">
-            Выбери предмет для апгрейда
+            Выбери предмет
             <button class="btn-red" style="padding: 5px 15px; font-size: 16px;" onclick="document.getElementById('mini-inv-modal').style.display='none'">X</button>
         </h2>
         <div class="inventory-grid" id="mini-inv-grid"></div>
     </div>
+</div>
+
+<div id="qr-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 4000; align-items: center; justify-content: center; flex-direction: column;">
+    <div style="background: white; padding: 20px; border-radius: 15px; text-align: center;">
+        <h2 style="color: #000; margin-bottom: 15px;">Оплата заказа</h2>
+        <img id="qr-image" src="" style="width: 250px; height: 250px;">
+        <p style="color: #000; margin-top: 10px; font-weight: bold;">Сканируй для оплаты</p>
+    </div>
+    <button class="btn-green" style="margin-top: 20px;" onclick="confirmDeposit()">Подтвердить оплату</button>
 </div>
 
 <script>
@@ -386,7 +418,14 @@
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
         
         document.getElementById(`page-${pageId}`).classList.add('active');
-        event.target.classList.add('active');
+        
+        // Поиск кнопки для подсветки
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            if(link.getAttribute('onclick').includes(`'${pageId}'`)) {
+                link.classList.add('active');
+            }
+        });
     }
 
     // === ОТОБРАЖЕНИЕ КЕЙСОВ ===
@@ -671,6 +710,94 @@
         const btn = document.getElementById('btn-do-upgrade');
         btn.disabled = true;
         btn.innerText = "Апгрейд!";
+    }
+
+    // === ЛОГИКА ПОПОЛНЕНИЯ БАЛАНСА ===
+    let pendingAmount = 0;
+    function depositMoney() {
+        let amount = prompt("Введи сумму пополнения (₽):", "1000");
+        if (amount && !isNaN(amount)) {
+            pendingAmount = parseInt(amount);
+            document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://tikhoretsk-drop.ru/pay/${amount}`;
+            document.getElementById('qr-modal').style.display = 'flex';
+        }
+    }
+    function confirmDeposit() {
+        updateBalance(pendingAmount);
+        document.getElementById('qr-modal').style.display = 'none';
+        alert(`Баланс успешно пополнен на ${pendingAmount} ₽!`);
+    }
+
+    // === ЛОГИКА SVO КОНТРАКТОВ ===
+    let svoItems = [];
+    function openSvoInv() {
+        const grid = document.getElementById('mini-inv-grid');
+        grid.innerHTML = '';
+        if(inventory.length === 0) {
+            grid.innerHTML = '<div style="color:red; padding: 20px;">Инвентарь пуст!</div>';
+        } else {
+            inventory.forEach((item, idx) => {
+                if (!svoItems.includes(idx)) {
+                    grid.innerHTML += `
+                        <div class="inv-item" style="cursor:pointer; border-bottom-color: ${rarities[item.rarity].color}" onclick="addToSvo(${idx})">
+                            <img src="${item.img}">
+                            <div class="name">${item.name}</div>
+                            <div class="price">${item.price.toLocaleString()} ₽</div>
+                        </div>`;
+                }
+            });
+        }
+        document.getElementById('mini-inv-modal').style.display = 'flex';
+    }
+
+    function addToSvo(idx) {
+        if (svoItems.length >= 10) return alert("Максимум 10 предметов!");
+        svoItems.push(idx);
+        document.getElementById('mini-inv-modal').style.display = 'none';
+        renderSvoSlots();
+    }
+
+    function renderSvoSlots() {
+        const container = document.getElementById('svo-slots-container');
+        container.innerHTML = '';
+        let total = 0;
+        svoItems.forEach(idx => {
+            const item = inventory[idx];
+            total += item.price;
+            container.innerHTML += `
+                <div class="item" style="min-width:110px; height:130px; border-bottom-color: ${rarities[item.rarity].color}">
+                    <img src="${item.img}" style="width:70px;">
+                    <div style="font-size: 9px; text-align:center;">${item.name}</div>
+                </div>`;
+        });
+        document.getElementById('svo-total-sum').innerText = total.toLocaleString();
+        document.getElementById('btn-do-svo').disabled = svoItems.length < 3;
+    }
+
+    function clearSvo() { svoItems = []; renderSvoSlots(); }
+
+    function executeSvo() {
+        const btn = document.getElementById('btn-do-svo');
+        btn.disabled = true;
+        btn.innerText = "Проверка данных...";
+
+        setTimeout(() => {
+            const totalInput = svoItems.reduce((acc, idx) => acc + inventory[idx].price, 0);
+            const multipliers = [0.2, 0.5, 0.8, 1, 1.2, 1.5, 2, 3, 5, 10, 20];
+            const randomMult = multipliers[Math.floor(Math.random() * multipliers.length)];
+            const winAmount = Math.floor(totalInput * randomMult);
+
+            // Удаляем предметы из инвентаря
+            svoItems.sort((a, b) => b - a).forEach(idx => inventory.splice(idx, 1));
+            localStorage.setItem('th_inv', JSON.stringify(inventory));
+            
+            updateBalance(winAmount);
+            alert(`Контракт завершен!\nМножитель: x${randomMult}\nВы получили: ${winAmount.toLocaleString()} ₽`);
+            
+            btn.innerText = "Подписать контракт!";
+            clearSvo();
+            switchPage('cases');
+        }, 1500);
     }
 
 </script>
