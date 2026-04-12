@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skins Hub 2026 | Case Simulator</title>
+    <style>
+        /* CSS СТИЛИ - ВНЕШНИЙ ВИД */
+        :root {
+            --bg-dark: #0b0d12;
+            --panel-bg: #151821;
+            --accent: #00ff88;
+            --text-main: #ffffff;
+            --rarity-gold: #ffb400;
+            --rarity-red: #eb4b4b;
+            --rarity-pink: #d32ce6;
+            --rarity-purple: #8847ff;
+            --rarity-blue: #4b69ff;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: var(--panel-bg);
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #252a35;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .balance-box {
+            font-size: 22px;
+            font-weight: 800;
+            background: rgba(0, 255, 136, 0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid var(--accent);
+        }
+
+        .balance-box span { color: var(--accent); }
+
+        /* СЕТКА КЕЙСОВ */
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+        
+        .section-title { margin-bottom: 30px; border-left: 5px solid var(--accent); padding-left: 15px; }
+
+        .case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        .case-card {
+            background: var(--panel-bg);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #2a2e38;
+            position: relative;
+        }
+
+        .case-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+            box-shadow: 0 15px 30px rgba(0, 255, 136, 0.1);
+        }
+
+        .case-card img { width: 100%; max-width: 150px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); }
+        
+        .case-card h3 { font-size: 18px; margin: 15px 0 5px; }
+        
+        .case-card .price { color: var(--accent); font-weight: bold; font-size: 20px; }
+
+        /* РУЛЕТКА (МОДАЛКА) */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .roulette-container {
+            width: 100%;
+            max-width: 900px;
+            height: 180px;
+            background: #1a1f29;
+            border: 2px solid #333;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            margin: 30px 0;
+        }
+
+        .center-marker {
+            position: absolute;
+            left: 50%; top: 0; bottom: 0; width: 4px;
+            background: var(--accent);
+            z-index: 100;
+            box-shadow: 0 0 20px var(--accent);
+            transform: translateX(-50%);
+        }
+
+        .tape {
+            display: flex;
+            position: absolute;
+            left: 0; top: 15px;
+            transition: transform 7s cubic-bezier(0.1, 0, 0.05, 1);
+        }
+
+        .tape-item {
+            min-width: 150px;
+            height: 150px;
+            margin: 0 5px;
+            background: #252a35;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            border-bottom: 5px solid var(--rarity-blue);
+        }
+
+        .tape-item img { width: 100px; }
+
+        /* ИНВЕНТАРЬ */
+        .inventory-section { background: #0f1218; padding: 40px 0; }
+        
+        .inv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .inv-slot {
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border-bottom: 4px solid #444;
+            transition: 0.2s;
+        }
+        
+        .inv-slot:hover { background: #1c212b; }
+
+        .btn {
+            padding: 12px 35px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn-main { background: var(--accent); color: #000; }
+        .btn-main:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0,255,136,0.4); }
+
+        .btn-sell { background: #eb4b4b; color: #fff; margin-top: 10px; font-size: 12px; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-size: 28px; font-weight: 900; letter-spacing: 2px;">SKIN<span style="color:var(--accent)">DROP</span></div>
+    <div class="balance-box">Баланс: <span id="balanceDisplay">100000</span> ₽</div>
+</header>
+
+<div class="container">
+    <h2 class="section-title">Все кейсы (50)</h2>
+    <div class="case-grid" id="caseGrid"></div>
+</div>
+
+<div class="inventory-section">
+    <div class="container">
+        <h2 class="section-title">Твой инвентарь</h2>
+        <div class="inv-grid" id="invGrid"></div>
+    </div>
+</div>
+
+<div id="modal">
+    <h1 id="winStatus">Крутим...</h1>
+    <div class="roulette-container">
+        <div class="center-marker"></div>
+        <div class="tape" id="tape"></div>
+    </div>
+    <div id="winActions" style="display:none">
+        <button class="btn btn-main" onclick="closeModal()">Забрать в инвентарь</button>
+    </div>
+</div>
+
+<script>
+    /* LOGIC - МОЗГИ САЙТА */
+    
+    // 1. Генерация 1000 скинов
+    const rarities = ["blue", "purple", "pink", "red", "gold"];
+    const rarityColors = { blue: "#4b69ff", purple: "#8847ff", pink: "#d32ce6", red: "#eb4b4b", gold: "#ffb400" };
+    
+    // Топовые скины для первых кейсов
+    const legendaryItems = [
+        { name: "AWP | Dragon Lore", price: 1200000, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0mvLwOq7c2G1Qv5Nzi-zE8I_0iVLgr0FvYm_3cY-QJwI3M1vV-Fm9ku_v1JS4v57PyXNmu3E8pSGK46_SpgM/360fx360f" },
+        { name: "M4A4 | Howl", price: 850000, rarity: "red", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhjxszFJTwW09Kzm7-FmP7mDLbUkmne5bp9i_vG8In03A3t_hVvY2v1IdSXIw87YF_Q-Vm9wr-7jJS06JrBznVqv3V0t3vfgVXp1uIDv_6Z/360fx360f" },
+        { name: "Butterfly | Doppler", price: 210000, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSs_fV3fszYTxRS49KJlZG0mPhzP77mm29u5Mx2gv2P8Y-mjVDk-0VvYm7zcY-ddgRrY1_R_Fm3kO7v08S0vJzPyXU36Scl7S3D30vgidm9EwY/360fx360f" }
+    ];
+
+    const allSkins = [];
+    for(let i=0; i<1000; i++) {
+        if(i < legendaryItems.length) {
+            allSkins.push(legendaryItems[i]);
+        } else {
+            const r = rarities[Math.floor(Math.random() * rarities.length)];
+            allSkins.push({
+                name: `Skin #${i+1} | Factory New`,
+                price: Math.floor(Math.random() * 50000) + 100,
+                rarity: r,
+                img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpoo6m1FBRp3_bGcjhQ09-jq5WYh8j_OrfdqWhe5sN4mOTE8bP4jVC9vh5yMGn7I9SUI1RvYAnU_lS8lb_u0JW9vJ_Am3Rru3IgtHeMm0S_hAYMMLISt69fRA/360fx360f"
+            });
+        }
+    }
+
+    // 2. Создание 50 кейсов
+    const cases = [];
+    for(let i=0; i<50; i++) {
+        cases.push({
+            id: i,
+            name: `Кейс: ${i === 0 ? "Legendary" : "Коллекция " + i}`,
+            price: i === 0 ? 5000 : Math.floor(Math.random() * 1500) + 200,
+            items: allSkins.slice(i * 20, (i + 1) * 20)
+        });
+    }
+
+    // 3. Состояние игрока
+    let balance = localStorage.getItem('skins_bal') ? parseInt(localStorage.getItem('skins_bal')) : 100000;
+    let inventory = JSON.parse(localStorage.getItem('skins_inv')) || [];
+
+    function syncUI() {
+        document.getElementById('balanceDisplay').innerText = balance.toLocaleString();
+        const invGrid = document.getElementById('invGrid');
+        invGrid.innerHTML = inventory.map((s, index) => `
+            <div class="inv-slot" style="border-color: ${rarityColors[s.rarity]}">
+                <img src="${s.img}" width="80"><br>
+                <strong>${s.price} ₽</strong><br>
+                <button class="btn-sell" onclick="sellItem(${index})">Продать</button>
+            </div>
+        `).reverse().join('');
+        localStorage.setItem('skins_bal', balance);
+        localStorage.setItem('skins_inv', JSON.stringify(inventory));
+    }
+
+    // 4. Отрисовка кейсов
+    const caseGrid = document.getElementById('caseGrid');
+    cases.forEach(c => {
+        const el = document.createElement('div');
+        el.className = 'case-card';
+        el.innerHTML = `
+            <img src="https://cdn-icons-png.flaticon.com/512/679/679821.png">
+            <h3>${c.name}</h3>
+            <div class="price">${c.price} ₽</div>
+        `;
+        el.onclick = () => openCase(c);
+        caseGrid.appendChild(el);
+    });
+
+    // 5. Механика открытия
+    function openCase(c) {
+        if(balance < c.price) return alert("Недостаточно денег!");
+        
+        balance -= c.price;
+        syncUI();
+
+        const modal = document.getElementById('modal');
+        const tape = document.getElementById('tape');
+        const winActions = document.getElementById('winActions');
+        const status = document.getElementById('winStatus');
+
+        modal.style.display = 'flex';
+        winActions.style.display = 'none';
+        status.innerText = "Удачи!";
+        tape.style.transition = 'none';
+        tape.style.transform = 'translateX(0)';
+
+        // Наполняем ленту случайными предметами из кейса
+        tape.innerHTML = '';
+        for(let i=0; i<80; i++) {
+            const s = c.items[Math.floor(Math.random() * c.items.length)];
+            tape.innerHTML += `
+                <div class="tape-item" style="border-color: ${rarityColors[s.rarity]}">
+                    <img src="${s.img}">
+                </div>
+            `;
+        }
+
+        const winIndex = 70; // 70-й предмет будет выигрышным
+        const winSkin = c.items[Math.floor(Math.random() * c.items.length)];
+        
+        // Вставляем победителя в ленту
+        const winSlot = tape.children[winIndex];
+        winSlot.innerHTML = `<img src="${winSkin.img}">`;
+        winSlot.style.borderColor = rarityColors[winSkin.rarity];
+
+        // Запуск анимации
+        setTimeout(() => {
+            tape.style.transition = 'transform 7s cubic-bezier(0.1, 0, 0.05, 1)';
+            const move = (winIndex * 160) - (window.innerWidth / 2) + 80;
+            const randomFix = Math.floor(Math.random() * 80) - 40;
+            tape.style.transform = `translateX(-${move + randomFix}px)`;
+        }, 50);
+
+        setTimeout(() => {
+            status.innerHTML = `Выпало: <span style="color:${rarityColors[winSkin.rarity]}">${winSkin.name}</span>`;
+            inventory.push(winSkin);
+            syncUI();
+            winActions.style.display = 'block';
+        }, 7200);
+    }
+
+    function sellItem(index) {
+        balance += inventory[index].price;
+        inventory.splice(index, 1);
+        syncUI();
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    syncUI();
+</script>
+
+</body>
+</html>
