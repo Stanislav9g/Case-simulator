@@ -421,20 +421,31 @@
         { id: 13, name: "Chicken Gun Elite exynos2800 rtx edition 1488 denis penis 67 vivo shot", price: 500000, img: "https://api.dicebear.com/7.x/bottts/svg?seed=chicken3" }
     ];
 
-    // Наполняем кейсы скинами из базы
+    // === ЛОГИКА НАПОЛНЕНИЯ КЕЙСОВ (ПОДГОН ПОД ЦЕНУ) ===
     const cases = casesData.map(c => {
-        let items = [];
-        // Если это кейс чикен ган - насыпаем туда петухов
-        if (c.name.includes("Chicken Gun")) {
-            if(c.price > 10000) items = chickenSkins.filter(s => s.price >= 12000);
-            else if (c.price > 1000) items = chickenSkins.filter(s => s.price >= 5000 && s.price < 150000);
-            else items = chickenSkins.filter(s => s.price < 10000);
-        } else {
-            if(c.price > 10000) items = globalSkins.filter(s => s.price > 50000 && !s.name.includes("петух"));
-            else if (c.price > 1000) items = globalSkins.filter(s => s.price > 1000 && s.price < 200000 && !s.name.includes("петух"));
-            else items = globalSkins.filter(s => s.price < 5000 && !s.name.includes("петух"));
+        const minDrop = c.price * 0.1; // Не сливать более чем в 10 раз
+        const maxDrop = c.price * 5;   // Не окупать более чем в 5 раз
+
+        let items = globalSkins.filter(s => {
+            const isChickenCase = c.name.includes("Chicken Gun");
+            const isChickenSkin = s.name.includes("петух");
+            // Проверка на диапазон цены
+            const inRange = s.price >= minDrop && s.price <= maxDrop;
+
+            if (isChickenCase) return isChickenSkin && inRange;
+            return !isChickenSkin && inRange;
+        });
+
+        // Если в диапазон попало мало предметов, расширяем фильтр (убираем привязку к петухам/обычным)
+        if (items.length < 5) {
+            items = globalSkins.filter(s => s.price >= minDrop && s.price <= maxDrop);
         }
-        if(items.length < 5) items = [...items, ...globalSkins.slice(0, 10)]; // страховка
+        
+        // Крайний случай: если база пуста для этого диапазона, берем ближайший скин
+        if (items.length === 0) {
+            items = [globalSkins.reduce((prev, curr) => Math.abs(curr.price - c.price) < Math.abs(prev.price - c.price) ? curr : prev)];
+        }
+
         return { ...c, items: items };
     });
 
@@ -492,6 +503,7 @@
 
         for(let i = 0; i < totalItems; i++) {
             let randomSkin;
+            // Повышаем шанс на хороший дроп (ближе к цене кейса), если в кейсе есть такие скины
             if(Math.random() > 0.8 && caseObj.items.some(s => s.price > caseObj.price)) {
                 let goodSkins = caseObj.items.filter(s => s.price >= caseObj.price * 0.8);
                 randomSkin = goodSkins[Math.floor(Math.random() * goodSkins.length)] || caseObj.items[0];
@@ -668,7 +680,7 @@
                 document.getElementById('upg-chance').innerText = "WIN!";
                 document.getElementById('upg-chance').style.color = "var(--accent)";
                 inventory.splice(upgMyItemIndex, 1); inventory.push(targetSkin);
-                setTimeout(() => alert(`Хорош, Стас! Ты скрафтил ${targetSkin.name}`), 100);
+                setTimeout(() => alert(`Хорош! Ты скрафтил ${targetSkin.name}`), 100);
             } else {
                 document.getElementById('upg-chance').innerText = "LOSE";
                 document.getElementById('upg-chance').style.color = "var(--red)";
