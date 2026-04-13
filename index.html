@@ -3,215 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tikhoretsk Drop | Ultimate Case Simulator</title>
+    <title>Pitbike Drop | Ultimate Case Simulator</title>
     <style>
-        /* === ОСНОВНЫЕ СТИЛИ И ПЕРЕМЕННЫЕ === */
         :root {
-            --bg: #0a0c10;
-            --bg-panel: #11151c;
-            --bg-card: #181c25;
-            --accent: #00ff88;
-            --accent-hover: #00cc6a;
-            --text: #e2e8f0;
-            --text-muted: #8b949e;
-            
-            --gold: #F4C430;
-            --red: #eb4b4b;
-            --pink: #d32ce6;
-            --purple: #8847ff;
-            --blue: #4b69ff;
-            --grey: #b0c3d9;
+            --bg: #0a0c10; --bg-panel: #11151c; --bg-card: #181c25;
+            --accent: #00ff88; --accent-hover: #00cc6a;
+            --text: #e2e8f0; --text-muted: #8b949e;
+            --gold: #F4C430; --red: #eb4b4b; --pink: #d32ce6;
+            --purple: #8847ff; --blue: #4b69ff; --grey: #b0c3d9;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--bg); color: var(--text); overflow-x: hidden; }
 
-        /* === НАВИГАЦИЯ И ШАПКА === */
+        /* HEADER */
         header {
-            background: var(--bg-panel);
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #202632;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            background: var(--bg-panel); padding: 15px 5%; display: flex;
+            justify-content: space-between; align-items: center;
+            border-bottom: 2px solid #202632; position: sticky; top: 0; z-index: 1000;
         }
-
-        .logo { font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+        .logo { font-size: 26px; font-weight: 900; text-transform: uppercase; }
         .logo span { color: var(--accent); }
-
         .nav-links { display: flex; gap: 20px; }
-        .nav-link {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            padding: 5px 10px;
-        }
+        .nav-link { color: var(--text-muted); text-decoration: none; font-size: 18px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .nav-link:hover, .nav-link.active { color: var(--accent); }
+        .balance-container { background: rgba(0, 255, 136, 0.1); border: 1px solid var(--accent); padding: 10px 20px; border-radius: 8px; font-weight: bold; }
 
-        .balance-container {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid var(--accent);
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 20px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-        }
-        .balance-container span { color: var(--accent); }
-
-        /* === СТРАНИЦЫ (ВКЛАДКИ) === */
+        /* PAGES */
         .page { display: none; padding: 40px 5%; max-width: 1400px; margin: 0 auto; min-height: 80vh; }
-        .page.active { display: block; animation: fadeIn 0.4s ease; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+        .page.active { display: block; }
         .page-title { font-size: 32px; margin-bottom: 30px; border-left: 5px solid var(--accent); padding-left: 15px; }
 
-        /* === СЕТКА КЕЙСОВ === */
-        .case-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; }
-
+        /* CASE GRID */
+        .case-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; }
         .case-card {
-            background: var(--bg-card);
-            border: 2px solid #202632;
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.3s;
-            position: relative;
-            overflow: hidden;
+            background: var(--bg-card); border: 2px solid #202632; border-radius: 15px;
+            padding: 20px; text-align: center; cursor: pointer; transition: 0.3s;
         }
-        .case-card:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.15); }
-        .case-card img { width: 140px; height: 140px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1)); margin-bottom: 15px; border-radius: 10px; }
-        .case-card h3 { font-size: 20px; margin-bottom: 10px; }
-        .case-card .price { color: var(--accent); font-weight: 800; font-size: 22px; }
+        .case-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+        .case-card img { width: 100%; height: 150px; object-fit: contain; margin-bottom: 15px; }
+        .case-card .price { color: var(--accent); font-weight: 800; font-size: 20px; }
 
-        /* === РУЛЕТКА (МОДАЛЬНОЕ ОКНО) === */
-        #roulette-modal {
-            display: none;
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 12, 16, 0.95);
-            z-index: 2000;
-            align-items: center; justify-content: center; flex-direction: column;
-        }
-
-        .roulette-header { font-size: 36px; margin-bottom: 30px; font-weight: bold; }
-
-        .roulette-wrapper {
-            width: 100%; max-width: 1100px; height: 200px;
-            background: var(--bg-card);
-            border: 2px solid #333;
-            border-radius: 15px;
-            position: relative; overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8) inset;
-        }
-
-        .center-line {
-            position: absolute; left: 50%; top: 0; bottom: 0; width: 4px;
-            background: var(--gold); z-index: 10; transform: translateX(-50%);
-            box-shadow: 0 0 15px var(--gold);
-        }
-
-        .tape { display: flex; position: absolute; left: 0; top: 10px; transition: transform 7s cubic-bezier(0.15, 0, 0.05, 1); }
-
-        .item {
-            min-width: 160px; height: 176px; margin: 0 5px;
-            background: #1e232d; border-radius: 10px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border-bottom: 6px solid var(--grey); position: relative;
-        }
-        .item img { width: 110px; height: 110px; object-fit: contain; }
-        .item .item-name { font-size: 12px; margin-top: 10px; text-align: center; padding: 0 5px; color: #ccc; }
-
-        .roulette-actions { margin-top: 40px; display: none; gap: 20px; }
-        
-        button {
-            padding: 15px 40px; font-size: 18px; font-weight: bold; cursor: pointer;
-            border: none; border-radius: 8px; transition: 0.2s;
-        }
-        .btn-green { background: var(--accent); color: #000; }
-        .btn-green:hover { background: var(--accent-hover); box-shadow: 0 0 20px rgba(0,255,136,0.4); }
-        .btn-red { background: var(--red); color: #fff; }
-        .btn-red:hover { box-shadow: 0 0 20px rgba(235,75,75,0.4); }
-
-        /* === ИНВЕНТАРЬ И ПРОФИЛЬ === */
-        .profile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .stats-box { display: flex; gap: 30px; font-size: 18px; color: var(--text-muted); }
-        .stats-box span { color: var(--text); font-weight: bold; font-size: 22px; }
-
-        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
-        .inv-item {
-            background: var(--bg-card); padding: 15px; border-radius: 10px;
-            text-align: center; border-bottom: 5px solid var(--grey);
-            display: flex; flex-direction: column; justify-content: space-between;
-        }
-        .inv-item img { width: 100px; height: 100px; object-fit: contain; margin: 0 auto 10px; }
-        .inv-item .name { font-size: 13px; margin-bottom: 5px; height: 35px; overflow: hidden; }
-        .inv-item .price { font-weight: bold; color: var(--accent); margin-bottom: 10px; }
-        .btn-sell-small { background: var(--red); color: white; padding: 8px; border-radius: 5px; cursor: pointer; border: none; width: 100%; font-weight: bold; }
-
-        /* === АПГРЕЙДЫ === */
-        .upgrade-container { display: flex; gap: 40px; justify-content: center; align-items: stretch; margin-top: 50px; }
-        
-        .upg-side {
-            background: var(--bg-card); border-radius: 15px; padding: 30px; width: 35%;
-            display: flex; flex-direction: column; align-items: center; border: 2px solid #202632;
-        }
-        
-        .upg-center { display: flex; flex-direction: column; justify-content: center; align-items: center; width: 30%; gap: 20px; }
-        
-        .upg-slot {
-            width: 200px; height: 200px; border: 2px dashed #444; border-radius: 15px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            margin-bottom: 20px; cursor: pointer; transition: 0.2s;
-        }
-        .upg-slot:hover { border-color: var(--accent); background: rgba(255,255,255,0.05); }
-        .upg-slot img { width: 140px; height: 140px; object-fit: contain; }
-
-        .multipliers { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
-        .mul-btn { background: #202632; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
-        .mul-btn.active { background: var(--purple); font-weight: bold; }
-
-        /* === КОЛЕСО АПГРЕЙДА === */
-        .upgrade-wheel {
-            width: 180px; height: 180px; border-radius: 50%;
-            background: conic-gradient(var(--accent) 0%, var(--accent) var(--chance), #202632 var(--chance), #202632 100%);
-            position: relative; display: flex; justify-content: center; align-items: center;
-            border: 5px solid #111; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transition: background 0.3s;
-        }
-        .wheel-arrow {
-            width: 4px; height: 90px; background: var(--red);
-            position: absolute; top: 0; left: 50%; transform-origin: bottom center;
-            transform: translateX(-50%) rotate(0deg); z-index: 10;
-            border-radius: 2px;
-        }
-        .wheel-arrow::after {
-            content: ''; position: absolute; top: -10px; left: -8px;
-            border-left: 10px solid transparent; border-right: 10px solid transparent;
-            border-bottom: 15px solid var(--red);
-        }
-        .wheel-center {
-            width: 140px; height: 140px; background: var(--bg-card);
-            border-radius: 50%; display: flex; justify-content: center; align-items: center;
-            font-size: 28px; font-weight: bold; color: var(--accent); z-index: 5;
-        }
-
-        /* Выбор предмета для апгрейда (мини-инвентарь) */
-        #mini-inv-modal {
+        /* MODALS */
+        .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; flex-direction: column;
         }
-        .mini-inv-content { background: var(--bg-panel); width: 80%; max-height: 80%; overflow-y: auto; padding: 30px; border-radius: 15px; }
+        .preview-container {
+            width: 90%; max-width: 1000px; background: var(--bg-panel); border-radius: 20px;
+            padding: 30px; max-height: 85vh; overflow-y: auto; border: 1px solid #333;
+        }
+        .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; margin: 20px 0; }
+        .preview-item { background: var(--bg-card); padding: 10px; border-radius: 8px; text-align: center; border-bottom: 3px solid #555; }
+        .preview-item img { width: 70px; height: 70px; object-fit: contain; }
 
+        /* ROULETTE */
+        .roulette-wrapper {
+            width: 100%; max-width: 1000px; height: 200px; background: var(--bg-card);
+            border: 2px solid #333; border-radius: 15px; position: relative; overflow: hidden; margin: 20px 0;
+        }
+        .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: var(--gold); z-index: 10; transform: translateX(-50%); }
+        .tape { display: flex; position: absolute; left: 0; top: 10px; transition: transform 7s cubic-bezier(0.1, 0, 0.05, 1); }
+        .item { min-width: 160px; height: 180px; margin: 0 5px; background: #1e232d; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 5px solid #ccc; }
+        .item img { width: 110px; height: 110px; object-fit: contain; }
+
+        /* UTILS */
+        .btn-green { background: var(--accent); color: #000; padding: 12px 30px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .btn-red { background: var(--red); color: #fff; padding: 12px 30px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+        .inv-item { background: var(--bg-card); padding: 15px; border-radius: 10px; text-align: center; border-bottom: 4px solid #555; }
+        .inv-item img { width: 90px; height: 90px; object-fit: contain; }
+
+        /* UPGRADE & SVO */
+        .upgrade-container { display: flex; gap: 30px; justify-content: center; align-items: center; margin-top: 40px; }
+        .upg-side { background: var(--bg-card); padding: 25px; border-radius: 15px; width: 300px; text-align: center; }
+        .upg-slot { width: 180px; height: 180px; border: 2px dashed #444; margin: 15px auto; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .upg-slot img { max-width: 100%; }
+        .upgrade-wheel { width: 150px; height: 150px; border-radius: 50%; border: 10px solid #222; position: relative; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -219,580 +86,324 @@
 <header>
     <div class="logo">Tikhoretsk<span>Drop</span></div>
     <div class="nav-links">
-        <a class="nav-link active" onclick="switchPage('cases')">Кейсы</a>
-        <a class="nav-link" onclick="switchPage('upgrade')">Апгрейды</a>
-        <a class="nav-link" onclick="switchPage('svo')">Контракт SVO</a>
-        <a class="nav-link" onclick="switchPage('profile'); renderProfile()">Профиль</a>
+        <div class="nav-link active" onclick="switchPage('cases')">Кейсы</div>
+        <div class="nav-link" onclick="switchPage('upgrade')">Апгрейд</div>
+        <div class="nav-link" onclick="switchPage('svo')">SVO Контракт</div>
+        <div class="nav-link" onclick="switchPage('profile'); renderProfile()">Профиль</div>
     </div>
-    <div class="balance-container">
-        Баланс: <span id="balance-display">100000</span> ₽ 
-        <button onclick="depositMoney()" style="padding: 2px 8px; margin-left: 10px; cursor: pointer; background: var(--accent); color: #000; border-radius: 4px; border: none; font-size: 16px; font-weight: bold;">+</button>
-    </div>
+    <div class="balance-container">Баланс: <span id="balance-display">0</span> ₽</div>
 </header>
 
 <div id="page-cases" class="page active">
-    <h1 class="page-title">Премиум Кейсы & Chicken Gun</h1>
+    <h1 class="page-title">Выбор кейса</h1>
     <div class="case-grid" id="cases-grid"></div>
 </div>
 
 <div id="page-profile" class="page">
-    <div class="profile-header">
-        <h1 class="page-title">Твой Инвентарь</h1>
-        <div class="stats-box">
-            <div>Предметов: <span id="stat-count">0</span></div>
-            <div>Общая стоимость: <span id="stat-value">0</span> ₽</div>
-        </div>
+    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 class="page-title">Инвентарь</h1>
         <button class="btn-red" onclick="sellAll()">Продать всё</button>
     </div>
     <div class="inventory-grid" id="inventory-grid"></div>
 </div>
 
 <div id="page-upgrade" class="page">
-    <h1 class="page-title">Контракты (Апгрейд)</h1>
-    <div style="text-align: center; color: var(--text-muted); margin-bottom: 20px;">
-        Выбери свой скин, выбери во сколько раз хочешь умножить его цену и крути колесо!
-    </div>
-
+    <h1 class="page-title">Апгрейд предметов</h1>
     <div class="upgrade-container">
         <div class="upg-side">
             <h3>Твой предмет</h3>
-            <div class="upg-slot" id="upg-my-slot" onclick="openMiniInv()">
-                <div style="color: #666; font-size: 40px;">+</div>
-            </div>
-            <div id="upg-my-price" style="font-size: 24px; font-weight: bold; color: var(--text-muted);">0 ₽</div>
+            <div class="upg-slot" id="upg-my-slot" onclick="openMiniInv('upgrade')"> Нажми для выбора </div>
+            <div id="upg-my-price">0 ₽</div>
         </div>
-
-        <div class="upg-center">
-            <div class="upgrade-wheel" id="upg-wheel" style="--chance: 0%;">
-                <div class="wheel-arrow" id="wheel-arrow"></div>
-                <div class="wheel-center" id="upg-chance">0%</div>
+        <div style="text-align: center;">
+            <div class="upgrade-wheel" id="upg-wheel" style="background: conic-gradient(var(--accent) 0%, #222 0%);">
+                <div id="upg-chance" style="font-size: 20px; font-weight: bold;">0%</div>
             </div>
-            <div class="multipliers">
-                <button class="mul-btn active" onclick="setMultiplier(1.5)">1.5x</button>
-                <button class="mul-btn" onclick="setMultiplier(2)">2x</button>
-                <button class="mul-btn" onclick="setMultiplier(3)">3x</button>
-                <button class="mul-btn" onclick="setMultiplier(5)">5x</button>
-                <button class="mul-btn" onclick="setMultiplier(10)">10x</button>
-            </div>
-            <button class="btn-green" id="btn-do-upgrade" onclick="executeUpgrade()" disabled>Крутить колесо!</button>
+            <button class="btn-green" style="margin-top:20px;" onclick="doUpgrade()">Апгрейд!</button>
         </div>
-
         <div class="upg-side">
-            <h3>Возможный выигрыш</h3>
-            <div class="upg-slot" id="upg-target-slot" style="cursor: default; border-style: solid; border-color: #333;">
-                <div style="color: #444; font-size: 30px;">?</div>
-            </div>
-            <div id="upg-target-price" style="font-size: 24px; font-weight: bold; color: var(--accent);">0 ₽</div>
+            <h3>Цель</h3>
+            <div class="upg-slot" id="upg-target-slot" style="cursor:default;"> ? </div>
+            <div id="upg-target-price">0 ₽</div>
         </div>
     </div>
 </div>
 
 <div id="page-svo" class="page">
-    <h1 class="page-title">Контракт SVO (Multi-Upgrade)</h1>
-    <div style="text-align: center; color: var(--text-muted); margin-bottom: 20px;">
-        Выбери от 3 до 10 предметов. Твой выигрыш составит от 0.2x до 20x, и ты получишь НОВЫЙ СКИН на эту сумму!
+    <h1 class="page-title">SVO Контракт (3 предмета)</h1>
+    <div id="svo-slots" style="display:flex; gap:20px; justify-content:center; margin-bottom:30px; min-height:150px; border:1px dashed #444; padding:20px;"></div>
+    <div style="text-align:center;">
+        <button class="btn-green" onclick="openMiniInv('svo')">Добавить предмет</button>
+        <button class="btn-red" onclick="doSvo()">Подписать контракт</button>
     </div>
-    <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
-        <div id="svo-slots-container" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; min-height: 200px; border: 2px dashed #333; padding: 20px; width: 100%; border-radius: 15px; background: rgba(255,255,255,0.02);">
-            </div>
-        <div style="font-size: 24px;">Сумма контракта: <span id="svo-total-sum" style="color:var(--accent)">0</span> ₽</div>
-        <div style="display: flex; gap: 20px;">
-            <button class="btn-green" onclick="openSvoInv()">Добавить предметы</button>
-            <button class="btn-red" onclick="clearSvo()">Очистить</button>
-            <button class="btn-green" id="btn-do-svo" onclick="executeSvo()" style="background: var(--purple); color: white;" disabled>Подписать контракт!</button>
-            <button class="btn-green" onclick="window.open('https://mil.ru/', '_blank')" style="background: #e53935; color: white;">Служба РФ</button>
+</div>
+
+<div id="preview-modal" class="modal-overlay">
+    <div class="preview-container">
+        <h2 id="prev-name">Кейс</h2>
+        <div class="preview-grid" id="prev-grid"></div>
+        <div style="text-align:center;">
+            <button class="btn-green" id="btn-open-now">Открыть за 0 ₽</button>
+            <button class="btn-red" onclick="closePreview()">Закрыть</button>
         </div>
     </div>
 </div>
 
-<div id="roulette-modal">
-    <div class="roulette-header" id="roulette-status">Открытие кейса...</div>
+<div id="roulette-modal" class="modal-overlay">
+    <h2 id="roulette-status">Крутим...</h2>
     <div class="roulette-wrapper">
         <div class="center-line"></div>
-        <div class="tape" id="roulette-tape"></div>
+        <div class="tape" id="tape"></div>
     </div>
-    <div class="roulette-actions" id="roulette-actions">
-        <button class="btn-green" onclick="closeRoulette()">Забрать в инвентарь</button>
-        <button class="btn-red" id="btn-sell-now" onclick="sellWonItem()">Продать за <span id="sell-price-span">0</span> ₽</button>
-    </div>
-</div>
-
-<div id="mini-inv-modal">
-    <div class="mini-inv-content">
-        <h2 style="margin-bottom: 20px; display: flex; justify-content: space-between;">
-            Выбери предмет
-            <button class="btn-red" style="padding: 5px 15px; font-size: 16px;" onclick="document.getElementById('mini-inv-modal').style.display='none'">X</button>
-        </h2>
-        <div class="inventory-grid" id="mini-inv-grid"></div>
+    <div id="roulette-actions" style="display:none; gap:20px;">
+        <button class="btn-green" onclick="collectItem()">В инвентарь</button>
+        <button class="btn-red" id="btn-sell-won" onclick="sellWon()">Продать</button>
     </div>
 </div>
 
-<div id="qr-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 4000; align-items: center; justify-content: center; flex-direction: column;">
-    <div style="background: white; padding: 20px; border-radius: 15px; text-align: center;">
-        <h2 style="color: #000; margin-bottom: 15px;">Оплата заказа</h2>
-        <img id="qr-image" src="" style="width: 250px; height: 250px;">
-        <p style="color: #000; margin-top: 10px; font-weight: bold;">Сканируй для оплаты</p>
+<div id="mini-inv-modal" class="modal-overlay">
+    <div class="preview-container">
+        <h2>Выбери предмет <button class="btn-red" style="float:right" onclick="closeMiniInv()">X</button></h2>
+        <div class="inventory-grid" id="mini-inv-grid" style="margin-top:20px;"></div>
     </div>
-    <button class="btn-green" style="margin-top: 20px;" onclick="confirmDeposit()">Подтвердить оплату</button>
 </div>
 
 <script>
-    // === БАЗА ДАННЫХ РЕАЛЬНЫХ СКИНОВ (С КАРТИНКАМИ ИЗ CS2) ===
+    // БАЗА ДАННЫХ
     const rarities = {
-        gold: { color: "var(--gold)", name: "Тайное (Нож)" },
-        red: { color: "var(--red)", name: "Тайное" },
-        pink: { color: "var(--pink)", name: "Засекреченное" },
-        purple: { color: "var(--purple)", name: "Запрещенное" },
-        blue: { color: "var(--blue)", name: "Армейское" }
+        gold: { color: "var(--gold)", label: "Золотое" },
+        red: { color: "var(--red)", label: "Тайное" },
+        pink: { color: "var(--pink)", label: "Засекреченное" },
+        purple: { color: "var(--purple)", label: "Запрещенное" },
+        blue: { color: "var(--blue)", label: "Армейское" }
     };
 
     const globalSkins = [
-        // ЗОЛОТО
-        { name: "AWP | Dragon Lore (FN)", price: 1250000, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0mvLwOq7c2G1Qv5Nzi-zE8I_0iVLgr0FvYm_3cY-QJwI3M1vV-Fm9ku_v1JS4v57PyXNmu3E8pSGK46_SpgM/360fx360f" },
-        { name: "M4A4 | Howl (FN)", price: 850000, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhjxszFJTwW09Kzm7-FmP7mDLbUkmne5bp9i_vG8In03A3t_hVvY2v1IdSXIw87YF_Q-Vm9wr-7jJS06JrBznVqv3V0t3vfgVXp1uIDv_6Z/360fx360f" },
-        { name: "Спортивные перчатки | Порок", price: 450000, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DAR0hwIQFTibK8lxhlnXGYdGdO4y23l5S0m_7zO6_cmjhQvt10j_vPpo322QHiqkE4MGjyLITSclVsMAvVr1ntwLm8hZG1uZzAn3Fk73V04WGdwUKd4o8Z/360fx360f" },
-        { name: "Керамбит | Волны (FN)", price: 180000, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSs_fV3fszYTxRS49KJlZG0mPhzP77mm29u5Mx2gv2P8Y-mjVDk-0VvYm7zcY-ddgRrY1_R_Fm3kO7v08S0vJzPyXU36Scl7S3D30vgidm9EwY/360fx360f" },
-        { name: "Нож-бабочка | Легенды", price: 210000, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSs_fV3fszYTxRS49KJlZG0mPhzP77mm29u5Mx2gv2P8Y-mjVDk-0VvYm7zcY-ddgRrY1_R_Fm3kO7v08S0vJzPyXU36Scl7S3D30vgidm9EwY/360fx360f" },
-        
-        // КРАСНОЕ
-        { name: "AK-47 | Огненный змей", price: 110000, rarity: "red", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhnwMzJemkV08y5nY6fqPv9NLPF2GkEupYp0-uVpImsjQy1r0Q-Z2jycI6UdlRoaQuG_wC7yezqgMK_v5XBzCNqvHR05XqOgVXp1j82GjI-/360fx360f" },
-        { name: "AWP | История о драконе (BS)", price: 250000, rarity: "red", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0mvLwOq7c2G1Qv5Nzi-zE8I_0iVLgr0FvYm_3cY-QJwI3M1vV-Fm9ku_v1JS4v57PyXNmu3E8pSGK46_SpgM/360fx360f" },
-        { name: "M4A1-S | Printstream", price: 35000, rarity: "red", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhz2v_Nfz5H_uO1gb-Gw_alIITfn2xZ_Ishi-2WoY_w3wLm_EU-MT_ycIadcgRsNA3Rqwe3le3uh8W-uZ3AyGwj5Hdx6s0nVQ/360fx360f" },
-        { name: "Desert Eagle | Пламя", price: 42000, rarity: "red", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLZTjlH_9mkgL-OlvD4NoTck29Y_cg_2-yQpo-hjQ3lr0BsYWr2cILHdVI_N1DTrATox--61JK6up7InyA13CJwsCzZmQv330_5pYgZLA/360fx360f" },
-
-        // РОЗОВОЕ
-        { name: "AWP | Неонуар", price: 6500, rarity: "pink", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17VnYIUFH_9Wzhr-HnvD8J_WAz2lV7cwh0rCRpd3221W1qBdlN2CgdYSUIVVqZg2FqQPvwe--1sS9tcydnyUwvnRws3bcl0CpwUYbF6uX8A/360fx360f" },
-        { name: "USP-S | Убийство подтверждено", price: 8000, rarity: "pink", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpoo6m1FBRp3_bGcjhQ09-jq5WYh8j3KqnUjlRZ7cRnk6eVrY6i2VblqEJtZmyncI_Ad1JvM1yCqFO8wezuhZTuusvNyyFruCU8pSGKp_5_oA/360fx360f" },
-
-        // ФИОЛЕТОВОЕ
-        { name: "AK-47 | Сланец", price: 800, rarity: "purple", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV092lnYmGmOHLPr7Vn35cppYh3OyWpI700Vbg_0U-am_xcNCWewFrYV7Y_lboxO_r1p-0u8vPyiZluSgg7XfD30vgAbe0_RE/360fx360f" },
-        
-        // СИНЕЕ (ШИРП И ПРОЧЕЕ)
-        { name: "P250 | Песчаные дюны", price: 15, rarity: "blue", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpopujwezhz3f-AClT9_tZ0goWOhsjiMrvQk31F5cJ70-qYrImi0AblqERsNmn1cYTGJwM2NAzSrwS9wrvqgsO8vsnAz2wj5HdfGk2qHA/360fx360f" }
+        { name: "Karambit | Case Hardened (Blue Gem)", price: 5000000, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSs_fV3fszYTxRS49KJlZG0mPhzP77mm29u5Mx2gv2P8Y-mjVDk-0VvYm7zcY-ddgRrY1_R_Fm3kO7v08S0vJzPyXU36Scl7S3D30vgidm9EwY/360fx360f" },
+        { name: "AWP | Dragon Lore", price: 3800000, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0mvLwOq7c2G1Qv5Nzi-zE8I_0iVLgr0FvYm_3cY-QJwI3M1vV-Fm9ku_v1JS4v57PyXNmu3E8pSGK46_SpgM/360fx360f" },
+        { name: "M4A4 | Howl", price: 1500000, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhjxszFJTwW09Kzm7-FmP7mDLbUkmne5bp9i_vG8In03A3t_hVvY2v1IdSXIw87YF_Q-Vm9wr-7jJS06JrBznVqv3V0t3vfgVXp1uIDv_6Z/360fx360f" },
+        { name: "Butterfly | Doppler (Sapphire)", price: 800000, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSs_fV3fszYTxRS49KJlZG0mPhzP77mm29u5Mx2gv2P8Y-mjVDk-0VvYm7zcY-ddgRrY1_R_Fm3kO7v08S0vJzPyXU36Scl7S3D30vgidm9EwY/360fx360f" },
+        { name: "AK-47 | Wild Lotus", price: 950000, rarity: "red", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhnwMzJemkV08y5nY6fqPv9NLPF2GkEupYp0-uVpImsjQy1r0Q-Z2jycI6UdlRoaQuG_wC7yezqgMK_v5XBzCNqvHR05XqOgVXp1j82GjI-/360fx360f" },
+        { name: "Денис Петух", price: 15000, rarity: "pink", img: "https://cdn-icons-png.flaticon.com/512/1864/1864509.png" },
+        { name: "Тихорецкий Жигуль", price: 45000, rarity: "red", img: "https://api.dicebear.com/7.x/bottts/svg?seed=car" }
     ];
 
-    // СКИНЫ ЧИКЕН ГАН
-    const chickenSkins = [
-        { name: "Денис петух", price: 7777, rarity: "pink", img: "https://cdn-icons-png.flaticon.com/512/1864/1864509.png" },
-        { name: "Золотой петух", price: 150000, rarity: "gold", img: "https://cdn-icons-png.flaticon.com/512/3075/3075908.png" },
-        { name: "Алмазный петух", price: 500000, rarity: "gold", img: "https://cdn-icons-png.flaticon.com/512/2850/2850788.png" },
-        { name: "Кибер-петух", price: 12000, rarity: "red", img: "https://cdn-icons-png.flaticon.com/512/3276/3276853.png" },
-        { name: "Петух-Ниндзя", price: 7000, rarity: "pink", img: "https://cdn-icons-png.flaticon.com/512/2002/2002576.png" },
-        { name: "Обычный кукареку", price: 100, rarity: "blue", img: "https://cdn-icons-png.flaticon.com/512/826/826955.png" }
-    ];
-    globalSkins.push(...chickenSkins);
-
-    // Догенерируем базу до 1000 скинов случайными комбинациями (теперь с картинками!)
-    const baseSkinsCount = globalSkins.length;
-    const rndImgPool = [
-        "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0mvLwOq7c2G1Qv5Nzi-zE8I_0iVLgr0FvYm_3cY-QJwI3M1vV-Fm9ku_v1JS4v57PyXNmu3E8pSGK46_SpgM/360fx360f",
-        "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV092lnYmGmOHLPr7Vn35cppYhiOoV9tmhjVDl-xE9YG3xdoHAdAVvNwnUrFm6x-q6gsO4tJ3BynE3uCMnsyqOzA/360fx360f",
-        "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLZTjlH_9mkgL-OlvD4NoTck29Y_cg_2-yQpo-hjQ3lr0BsYWr2cILHdVI_N1DTrATox--61JK6up7InyA13CJwsCzZmQv330_5pYgZLA/360fx360f",
-        "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV092lnYmGmOHLPr7Vn35cppYh3OyWpI700Vbg_0U-am_xcNCWewFrYV7Y_lboxO_r1p-0u8vPyiZluSgg7XfD30vgAbe0_RE/360fx360f",
-        "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhz2v_Nfz5H_uO1gb-Gw_alIITfn2xZ_Ishi-2WoY_w3wLm_EU-MT_ycIadcgRsNA3Rqwe3le3uh8W-uZ3AyGwj5Hdx6s0nVQ/360fx360f"
-    ];
-
-    for(let i = baseSkinsCount; i < 1000; i++) {
-        const template = globalSkins[Math.floor(Math.random() * baseSkinsCount)];
-        const useRndImg = template.name.includes("петух") ? template.img : rndImgPool[Math.floor(Math.random() * rndImgPool.length)];
+    // Добиваем базу до 200 предметов для разнообразия
+    for(let i=0; i<193; i++) {
         globalSkins.push({
-            name: `${template.name.split(' ')[0]} | Random #${i}`,
-            price: Math.max(10, Math.floor(template.price * (Math.random() * 0.5 + 0.5))),
-            rarity: template.rarity,
-            img: useRndImg
+            name: `Скин #${i+1}`, price: Math.floor(Math.random() * 30000) + 50,
+            rarity: i % 10 === 0 ? "red" : (i % 5 === 0 ? "pink" : "blue"),
+            img: `https://api.dicebear.com/7.x/bottts/svg?seed=skin${i}`
         });
     }
 
-    // === КОНФИГУРАЦИЯ КЕЙСОВ (Смешные картинки) ===
-    const casesData = [
-        { id: 1, name: "Медный бык", price: 51, img: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=bull" },
-        { id: 2, name: "Покойо", price: 322, img: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=pokoyo" },
-        { id: 3, name: "Денчик", price: 666, img: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=denchik" },
-        { id: 4, name: "Читер", price: 777, img: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=hacker" },
-        { id: 5, name: "Шаурма у вокзала", price: 999, img: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=shawarma" },
-        { id: 6, name: "ОГЭ 2026", price: 1337, img: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=oge2026" },
-        { id: 7, name: "Питбайки", price: 4252, img: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=moto" },
-        { id: 8, name: "ДПС Засада", price: 6767, img: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=police" },
-        { id: 9, name: "Тихорецкий Экспресс", price: 10000, img: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=train" },
-        { id: 10, name: "ЯПДФ (Секретный)", price: 2001110, img: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=secret" },
-        // НОВЫЕ КЕЙСЫ CHICKEN GUN
-        { id: 11, name: "Chicken Gun Lite", price: 250, img: "https://api.dicebear.com/7.x/bottts/svg?seed=chicken1" },
-        { id: 12, name: "Chicken Gun Pro", price: 5000, img: "https://api.dicebear.com/7.x/bottts/svg?seed=chicken2" },
-        { id: 13, name: "Chicken Gun Elite", price: 50000, img: "https://api.dicebear.com/7.x/bottts/svg?seed=chicken3" }
+    const cases = [
+        { id: 1, name: "Бомж Кейс", price: 100, img: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=poor" },
+        { id: 2, name: "Тихорецкий Драйв", price: 1500, img: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=car" },
+        { id: 3, name: "Chicken Gun Box", price: 10000, img: "https://api.dicebear.com/7.x/bottts/svg?seed=chicken" },
+        { id: 4, name: "Элита ОГЭ", price: 100000, img: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=rich" },
+        { id: 5, name: "Миллионер", price: 1000000, img: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=gold" }
     ];
 
-    // Наполняем кейсы скинами из базы
-    const cases = casesData.map(c => {
-        let items = [];
-        // Если это кейс чикен ган - насыпаем туда петухов
-        if (c.name.includes("Chicken Gun")) {
-            if(c.price > 10000) items = chickenSkins.filter(s => s.price >= 12000);
-            else if (c.price > 1000) items = chickenSkins.filter(s => s.price >= 5000 && s.price < 150000);
-            else items = chickenSkins.filter(s => s.price < 10000);
-        } else {
-            if(c.price > 10000) items = globalSkins.filter(s => s.price > 50000 && !s.name.includes("петух"));
-            else if (c.price > 1000) items = globalSkins.filter(s => s.price > 1000 && s.price < 200000 && !s.name.includes("петух"));
-            else items = globalSkins.filter(s => s.price < 5000 && !s.name.includes("петух"));
-        }
-        if(items.length < 5) items = [...items, ...globalSkins.slice(0, 10)]; // страховка
-        return { ...c, items: items };
-    });
-
-    // === СОСТОЯНИЕ ИГРОКА (LocalStorage) ===
-    let balance = localStorage.getItem('th_bal') ? parseInt(localStorage.getItem('th_bal')) : 50000;
+    // ЛОГИКА
+    let balance = localStorage.getItem('th_bal') ? parseInt(localStorage.getItem('th_bal')) : 5000;
     let inventory = JSON.parse(localStorage.getItem('th_inv')) || [];
-    let currentWonItem = null;
+    let svoItems = [];
+    let selectedUpgItem = null;
+    let wonItem = null;
 
-    function updateBalance(amount) {
-        balance += amount;
-        document.getElementById('balance-display').innerText = balance.toLocaleString();
+    function save() {
         localStorage.setItem('th_bal', balance);
+        localStorage.setItem('th_inv', JSON.stringify(inventory));
+        document.getElementById('balance-display').innerText = balance.toLocaleString();
     }
-    updateBalance(0);
+    save();
 
-    // === НАВИГАЦИЯ ===
-    function switchPage(pageId) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        document.getElementById(`page-${pageId}`).classList.add('active');
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => { if(link.getAttribute('onclick').includes(`'${pageId}'`)) link.classList.add('active'); });
+    function switchPage(p) {
+        document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+        document.getElementById('page-' + p).classList.add('active');
     }
 
-    // === ОТОБРАЖЕНИЕ КЕЙСОВ ===
-    const casesGrid = document.getElementById('cases-grid');
+    // РЕНДЕР КЕЙСОВ
+    const grid = document.getElementById('cases-grid');
     cases.forEach(c => {
-        casesGrid.innerHTML += `
-            <div class="case-card" onclick="openCase(${c.id})">
-                <img src="${c.img}" alt="${c.name}">
+        grid.innerHTML += `
+            <div class="case-card" onclick="previewCase(${c.id})">
+                <img src="${c.img}">
                 <h3>${c.name}</h3>
                 <div class="price">${c.price.toLocaleString()} ₽</div>
             </div>
         `;
     });
 
-    // === ЛОГИКА РУЛЕТКИ ===
-    function openCase(id) {
-        const caseObj = cases.find(c => c.id === id);
-        if (balance < caseObj.price) return alert("Брат, не хватает денег на балансе!");
-        updateBalance(-caseObj.price);
-
-        const modal = document.getElementById('roulette-modal');
-        const tape = document.getElementById('roulette-tape');
-        const actions = document.getElementById('roulette-actions');
-        const status = document.getElementById('roulette-status');
-
-        modal.style.display = 'flex';
-        actions.style.display = 'none';
-        status.innerText = `Открываем «${caseObj.name}»...`;
-        tape.style.transition = 'none'; tape.style.transform = 'translateX(0)'; tape.innerHTML = '';
-
-        const itemWidth = 170; const totalItems = 90; const winIndex = 75;
-        let tapeHTML = ''; let wonSkinObj = null;
-
-        for(let i = 0; i < totalItems; i++) {
-            let randomSkin;
-            if(Math.random() > 0.8 && caseObj.items.some(s => s.price > caseObj.price)) {
-                let goodSkins = caseObj.items.filter(s => s.price >= caseObj.price * 0.8);
-                randomSkin = goodSkins[Math.floor(Math.random() * goodSkins.length)] || caseObj.items[0];
-            } else {
-                randomSkin = caseObj.items[Math.floor(Math.random() * caseObj.items.length)];
-            }
-            if(i === winIndex) wonSkinObj = randomSkin;
-
-            tapeHTML += `
-                <div class="item" style="border-bottom-color: ${rarities[randomSkin.rarity].color}">
-                    <img src="${randomSkin.img}">
-                    <div class="item-name">${randomSkin.name}</div>
+    // ПРЕВЬЮ
+    function previewCase(id) {
+        const c = cases.find(x => x.id === id);
+        const modal = document.getElementById('preview-modal');
+        const pGrid = document.getElementById('prev-grid');
+        pGrid.innerHTML = '';
+        
+        // Показываем предметы, которые теоретически могут выпасть
+        const possible = globalSkins.filter(s => s.price >= c.price * 0.1 && s.price <= c.price * 5).slice(0, 15);
+        possible.forEach(s => {
+            pGrid.innerHTML += `
+                <div class="preview-item" style="border-color:${rarities[s.rarity].color}">
+                    <img src="${s.img}"><br><small>${s.name}</small>
                 </div>`;
+        });
+
+        document.getElementById('prev-name').innerText = c.name;
+        const btn = document.getElementById('btn-open-now');
+        btn.innerText = `Открыть за ${c.price.toLocaleString()} ₽`;
+        btn.onclick = () => { closePreview(); openCase(id); };
+        modal.style.display = 'flex';
+    }
+
+    function closePreview() { document.getElementById('preview-modal').style.display = 'none'; }
+
+    // МЕХАНИКА ДРОПА (70% слив, 10% окуп до 5х)
+    function getDrop(price) {
+        const roll = Math.random() * 100;
+        let min, max;
+        if (roll < 70) { min = 0.1; max = 0.8; } // Слив в 10 раз возможен (0.1)
+        else if (roll < 90) { min = 0.8; max = 1.2; } // Около нуля
+        else { min = 1.2; max = 5.0; } // Окуп МАКСИМУМ 5х
+
+        const targetMin = price * min;
+        const targetMax = price * max;
+        let pool = globalSkins.filter(s => s.price >= targetMin && s.price <= targetMax);
+        if (pool.length === 0) pool = [globalSkins[Math.floor(Math.random()*globalSkins.length)]];
+        return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function openCase(id) {
+        const c = cases.find(x => x.id === id);
+        if (balance < c.price) return alert("Не хватает денег!");
+        balance -= c.price; save();
+
+        wonItem = getDrop(c.price);
+        const modal = document.getElementById('roulette-modal');
+        const tape = document.getElementById('tape');
+        modal.style.display = 'flex';
+        document.getElementById('roulette-actions').style.display = 'none';
+        document.getElementById('roulette-status').innerText = "Открываем...";
+
+        tape.style.transition = 'none';
+        tape.style.transform = 'translateX(0)';
+        
+        let html = '';
+        for(let i=0; i<60; i++) {
+            let s = i === 50 ? wonItem : globalSkins[Math.floor(Math.random()*globalSkins.length)];
+            html += `<div class="item" style="border-color:${rarities[s.rarity].color}"><img src="${s.img}"></div>`;
         }
-        tape.innerHTML = tapeHTML; currentWonItem = wonSkinObj;
+        tape.innerHTML = html;
 
         setTimeout(() => {
             tape.style.transition = 'transform 7s cubic-bezier(0.1, 0, 0.05, 1)';
-            const wrapperWidth = document.querySelector('.roulette-wrapper').offsetWidth;
-            const centerOffset = (winIndex * itemWidth) - (wrapperWidth / 2) + (itemWidth / 2);
-            const randomJitter = Math.floor(Math.random() * (itemWidth - 40)) - ((itemWidth - 40) / 2);
-            tape.style.transform = `translateX(-${centerOffset + randomJitter}px)`;
-        }, 100);
+            tape.style.transform = `translateX(-${50 * 170 - 400}px)`;
+        }, 50);
 
         setTimeout(() => {
-            status.innerHTML = `Выпало: <span style="color: ${rarities[wonSkinObj.rarity].color}">${wonSkinObj.name}</span>`;
-            document.getElementById('sell-price-span').innerText = wonSkinObj.price.toLocaleString();
-            actions.style.display = 'flex';
-        }, 7500);
+            document.getElementById('roulette-status').innerText = `Выпало: ${wonItem.name}`;
+            document.getElementById('btn-sell-won').innerText = `Продать за ${wonItem.price} ₽`;
+            document.getElementById('roulette-actions').style.display = 'flex';
+        }, 7200);
     }
 
-    function closeRoulette() {
-        inventory.push(currentWonItem);
-        localStorage.setItem('th_inv', JSON.stringify(inventory));
-        document.getElementById('roulette-modal').style.display = 'none';
-    }
+    function collectItem() { inventory.push(wonItem); save(); document.getElementById('roulette-modal').style.display = 'none'; }
+    function sellWon() { balance += wonItem.price; save(); document.getElementById('roulette-modal').style.display = 'none'; }
 
-    function sellWonItem() {
-        updateBalance(currentWonItem.price);
-        document.getElementById('roulette-modal').style.display = 'none';
-    }
-
-    // === ПРОФИЛЬ И ИНВЕНТАРЬ ===
+    // ИНВЕНТАРЬ
     function renderProfile() {
-        const grid = document.getElementById('inventory-grid');
-        grid.innerHTML = '';
-        let totalVal = 0;
-        
-        [...inventory].reverse().forEach((item, index) => {
-            totalVal += item.price;
-            const realIndex = inventory.length - 1 - index;
-            grid.innerHTML += `
-                <div class="inv-item" style="border-bottom-color: ${rarities[item.rarity].color}">
-                    <img src="${item.img}">
-                    <div class="name">${item.name}</div>
-                    <div class="price">${item.price.toLocaleString()} ₽</div>
-                    <button class="btn-sell-small" onclick="sellFromInv(${realIndex})">Продать</button>
+        const g = document.getElementById('inventory-grid');
+        g.innerHTML = '';
+        inventory.forEach((s, i) => {
+            g.innerHTML += `
+                <div class="inv-item" style="border-color:${rarities[s.rarity].color}">
+                    <img src="${s.img}">
+                    <div>${s.name}</div>
+                    <div style="color:var(--accent)">${s.price} ₽</div>
+                    <button class="btn-red" style="padding:5px; margin-top:5px;" onclick="sellItem(${i})">Продать</button>
                 </div>`;
         });
-
-        document.getElementById('stat-count').innerText = inventory.length;
-        document.getElementById('stat-value').innerText = totalVal.toLocaleString();
     }
 
-    function sellFromInv(index) {
-        updateBalance(inventory[index].price);
-        inventory.splice(index, 1);
-        localStorage.setItem('th_inv', JSON.stringify(inventory));
-        renderProfile(); resetUpgrade();
-    }
+    function sellItem(i) { balance += inventory[i].price; inventory.splice(i, 1); save(); renderProfile(); }
+    function sellAll() { inventory.forEach(s => balance += s.price); inventory = []; save(); renderProfile(); }
 
-    function sellAll() {
-        if(inventory.length === 0) return alert("Инвентарь пуст!");
-        if(!confirm("Точно продать ВСЕ скины?")) return;
-        let sum = inventory.reduce((acc, item) => acc + item.price, 0);
-        updateBalance(sum); inventory = [];
-        localStorage.setItem('th_inv', JSON.stringify(inventory));
-        renderProfile(); resetUpgrade();
-    }
-
-    // === СИСТЕМА АПГРЕЙДОВ (КОЛЕСО) ===
-    let upgMyItem = null; let upgMyItemIndex = -1;
-    let upgMultiplier = 1.5; let upgTargetPrice = 0; let winChance = 0;
-
-    function openMiniInv() {
-        const grid = document.getElementById('mini-inv-grid');
-        grid.innerHTML = '';
-        if(inventory.length === 0) {
-            grid.innerHTML = '<div style="color:red;">Нет скинов! Открой кейсы.</div>';
-        } else {
-            [...inventory].reverse().forEach((item, idx) => {
-                const realIdx = inventory.length - 1 - idx;
-                grid.innerHTML += `
-                    <div class="inv-item" style="cursor:pointer; border-bottom-color: ${rarities[item.rarity].color}" onclick="selectForUpgrade(${realIdx})">
-                        <img src="${item.img}">
-                        <div class="name">${item.name}</div>
-                        <div class="price">${item.price.toLocaleString()} ₽</div>
-                    </div>`;
-            });
-        }
+    // АПГРЕЙД & SVO
+    let currentMode = '';
+    function openMiniInv(mode) {
+        currentMode = mode;
+        const g = document.getElementById('mini-inv-grid');
+        g.innerHTML = '';
+        inventory.forEach((s, i) => {
+            g.innerHTML += `<div class="inv-item" onclick="selectFor('${mode}', ${i})"><img src="${s.img}"><br>${s.name}</div>`;
+        });
         document.getElementById('mini-inv-modal').style.display = 'flex';
     }
+    function closeMiniInv() { document.getElementById('mini-inv-modal').style.display = 'none'; }
 
-    function selectForUpgrade(index) {
-        upgMyItemIndex = index; upgMyItem = inventory[index];
-        document.getElementById('mini-inv-modal').style.display = 'none';
-        document.getElementById('upg-my-slot').innerHTML = `<img src="${upgMyItem.img}">`;
-        document.getElementById('upg-my-price').innerText = `${upgMyItem.price.toLocaleString()} ₽`;
-        calculateUpgrade();
-    }
-
-    function setMultiplier(mult) {
-        upgMultiplier = mult;
-        document.querySelectorAll('.mul-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
-        calculateUpgrade();
-    }
-
-    function calculateUpgrade() {
-        if(!upgMyItem) return;
-        upgTargetPrice = Math.floor(upgMyItem.price * upgMultiplier);
-        let possibleTargets = globalSkins.filter(s => s.price >= upgTargetPrice * 0.9 && s.price <= upgTargetPrice * 1.5);
-        let targetSkin = possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
-        
-        if(!targetSkin) {
-            targetSkin = globalSkins.find(s => s.price >= upgTargetPrice) || globalSkins[0];
-            upgTargetPrice = targetSkin.price;
-        }
-
-        winChance = ((upgMyItem.price / targetSkin.price) * 100).toFixed(1);
-        if(winChance > 90) winChance = 90;
-        
-        // Обновляем UI колеса
-        const wheel = document.getElementById('upg-wheel');
-        wheel.style.setProperty('--chance', `${winChance}%`);
-        document.getElementById('upg-chance').innerText = `${winChance}%`;
-        document.getElementById('upg-chance').style.color = winChance > 40 ? 'var(--accent)' : 'var(--red)';
-
-        document.getElementById('upg-target-slot').innerHTML = `<img src="${targetSkin.img}">`;
-        document.getElementById('upg-target-slot').style.borderColor = rarities[targetSkin.rarity].color;
-        document.getElementById('upg-target-price').innerText = `${targetSkin.price.toLocaleString()} ₽`;
-        document.getElementById('upg-target-price').dataset.skin = JSON.stringify(targetSkin);
-
-        document.getElementById('btn-do-upgrade').disabled = false;
-        
-        // Сброс стрелки
-        const arrow = document.getElementById('wheel-arrow');
-        arrow.style.transition = 'none';
-        arrow.style.transform = `translateX(-50%) rotate(0deg)`;
-    }
-
-    function executeUpgrade() {
-        if(!upgMyItem) return;
-        const btn = document.getElementById('btn-do-upgrade');
-        btn.disabled = true; btn.innerText = "Крутим...";
-        
-        const targetSkin = JSON.parse(document.getElementById('upg-target-price').dataset.skin);
-        const roll = Math.random() * 100;
-        const isWin = roll <= winChance;
-
-        const arrow = document.getElementById('wheel-arrow');
-        let spins = 5 * 360; // 5 полных оборотов
-        // Шанс конвертируем в градусы (зеленая зона от 0 до winChance * 3.6)
-        let finalAngle = isWin ? (Math.random() * winChance * 3.6) : (winChance * 3.6 + Math.random() * (360 - winChance * 3.6));
-        
-        // Маленький хак для сброса анимации
-        void arrow.offsetWidth; 
-        
-        arrow.style.transition = 'transform 3s cubic-bezier(0.1, 0, 0, 1)';
-        arrow.style.transform = `translateX(-50%) rotate(${spins + finalAngle}deg)`;
-
-        setTimeout(() => {
-            if(isWin) {
-                document.getElementById('upg-chance').innerText = "WIN!";
-                document.getElementById('upg-chance').style.color = "var(--accent)";
-                inventory.splice(upgMyItemIndex, 1); inventory.push(targetSkin);
-                setTimeout(() => alert(`Хорош, Стас! Ты скрафтил ${targetSkin.name}`), 100);
-            } else {
-                document.getElementById('upg-chance').innerText = "LOSE";
-                document.getElementById('upg-chance').style.color = "var(--red)";
-                document.getElementById('upg-target-slot').style.filter = "grayscale(1) opacity(0.3)";
-                inventory.splice(upgMyItemIndex, 1);
+    function selectFor(mode, i) {
+        const s = inventory[i];
+        if (mode === 'upgrade') {
+            selectedUpgItem = { ...s, index: i };
+            document.getElementById('upg-my-slot').innerHTML = `<img src="${s.img}">`;
+            document.getElementById('upg-my-price').innerText = s.price + " ₽";
+            // Цель - скин в 2 раза дороже
+            const target = globalSkins.filter(x => x.price > s.price * 1.5).sort((a,b) => a.price - b.price)[0];
+            document.getElementById('upg-target-slot').innerHTML = `<img src="${target.img}">`;
+            document.getElementById('upg-target-price').innerText = target.price + " ₽";
+            const chance = Math.floor((s.price / target.price) * 100);
+            document.getElementById('upg-chance').innerText = chance + "%";
+            document.getElementById('upg-wheel').style.background = `conic-gradient(var(--accent) ${chance}%, #222 ${chance}%)`;
+        } else {
+            if (svoItems.length < 3) {
+                svoItems.push({ ...s, index: i });
+                renderSvoSlots();
             }
-            localStorage.setItem('th_inv', JSON.stringify(inventory));
-            setTimeout(() => resetUpgrade(), 2000);
-        }, 3100);
-    }
-
-    function resetUpgrade() {
-        upgMyItem = null; upgMyItemIndex = -1;
-        document.getElementById('upg-my-slot').innerHTML = `<div style="color: #666; font-size: 40px;">+</div>`;
-        document.getElementById('upg-my-price').innerText = `0 ₽`;
-        document.getElementById('upg-target-slot').innerHTML = `<div style="color: #444; font-size: 30px;">?</div>`;
-        document.getElementById('upg-target-slot').style.borderColor = `#333`;
-        document.getElementById('upg-target-slot').style.filter = "none";
-        document.getElementById('upg-target-price').innerText = `0 ₽`;
-        
-        const wheel = document.getElementById('upg-wheel');
-        wheel.style.setProperty('--chance', `0%`);
-        document.getElementById('upg-chance').innerText = `0%`;
-        document.getElementById('upg-chance').style.color = `var(--accent)`;
-        
-        const arrow = document.getElementById('wheel-arrow');
-        arrow.style.transition = 'none';
-        arrow.style.transform = `translateX(-50%) rotate(0deg)`;
-        
-        const btn = document.getElementById('btn-do-upgrade');
-        btn.disabled = true; btn.innerText = "Крутить колесо!";
-    }
-
-    // === ЛОГИКА ПОПОЛНЕНИЯ БАЛАНСА ===
-    let pendingAmount = 0;
-    function depositMoney() {
-        let amount = prompt("Введи сумму пополнения (₽):", "1000");
-        if (amount && !isNaN(amount)) {
-            pendingAmount = parseInt(amount);
-            document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://tikhoretsk-drop.ru/pay/${amount}`;
-            document.getElementById('qr-modal').style.display = 'flex';
         }
-    }
-    function confirmDeposit() {
-        updateBalance(pendingAmount);
-        document.getElementById('qr-modal').style.display = 'none';
-        alert(`Баланс успешно пополнен на ${pendingAmount} ₽!`);
-    }
-
-    // === ЛОГИКА SVO КОНТРАКТОВ (Выдача предметом) ===
-    let svoItems = [];
-    function openSvoInv() {
-        const grid = document.getElementById('mini-inv-grid');
-        grid.innerHTML = '';
-        if(inventory.length === 0) {
-            grid.innerHTML = '<div style="color:red; padding: 20px;">Инвентарь пуст!</div>';
-        } else {
-            inventory.forEach((item, idx) => {
-                if (!svoItems.includes(idx)) {
-                    grid.innerHTML += `
-                        <div class="inv-item" style="cursor:pointer; border-bottom-color: ${rarities[item.rarity].color}" onclick="addToSvo(${idx})">
-                            <img src="${item.img}">
-                            <div class="name">${item.name}</div>
-                            <div class="price">${item.price.toLocaleString()} ₽</div>
-                        </div>`;
-                }
-            });
-        }
-        document.getElementById('mini-inv-modal').style.display = 'flex';
-    }
-
-    function addToSvo(idx) {
-        if (svoItems.length >= 10) return alert("Максимум 10 предметов!");
-        svoItems.push(idx);
-        document.getElementById('mini-inv-modal').style.display = 'none';
-        renderSvoSlots();
+        closeMiniInv();
     }
 
     function renderSvoSlots() {
-        const container = document.getElementById('svo-slots-container');
-        container.innerHTML = ''; let total = 0;
-        svoItems.forEach(idx => {
-            const item = inventory[idx]; total += item.price;
-            container.innerHTML += `
-                <div class="item" style="min-width:110px; height:130px; border-bottom-color: ${rarities[item.rarity].color}">
-                    <img src="${item.img}" style="width:70px;">
-                    <div style="font-size: 9px; text-align:center;">${item.name}</div>
-                </div>`;
-        });
-        document.getElementById('svo-total-sum').innerText = total.toLocaleString();
-        document.getElementById('btn-do-svo').disabled = svoItems.length < 3;
+        const div = document.getElementById('svo-slots');
+        div.innerHTML = '';
+        svoItems.forEach(s => div.innerHTML += `<div class="inv-item"><img src="${s.img}"></div>`);
     }
 
-    function clearSvo() { svoItems = []; renderSvoSlots(); }
-
-    function executeSvo() {
-        const btn = document.getElementById('btn-do-svo');
-        btn.disabled = true; btn.innerText = "Подписываем...";
-
-        setTimeout(() => {
-            const totalInput = svoItems.reduce((acc, idx) => acc + inventory[idx].price, 0);
-            const multipliers = [0.2, 0.5, 0.8, 1, 1.2, 1.5, 2, 3, 5, 10, 20];
-            const randomMult = multipliers[Math.floor(Math.random() * multipliers.length)];
-            const winAmount = Math.floor(totalInput * randomMult);
-
-            // Находим скин, максимально близкий к выигранной сумме
-            const winSkin = globalSkins.reduce((prev, curr) => {
-                return (Math.abs(curr.price - winAmount) < Math.abs(prev.price - winAmount) ? curr : prev);
-            });
-
-            // Удаляем старые предметы
-            svoItems.sort((a, b) => b - a).forEach(idx => inventory.splice(idx, 1));
-            // Добавляем новый
-            inventory.push(winSkin);
-            localStorage.setItem('th_inv', JSON.stringify(inventory));
-            
-            alert(`Контракт завершен!\nМножитель: x${randomMult} (Сумма: ${winAmount} ₽)\n\nВы скрафтили предмет: ${winSkin.name}! Ищи в профиле.`);
-            
-            btn.innerText = "Подписать контракт!";
-            clearSvo(); switchPage('profile'); renderProfile();
-        }, 1500);
+    function doUpgrade() {
+        if (!selectedUpgItem) return alert("Выбери предмет!");
+        const chance = parseInt(document.getElementById('upg-chance').innerText);
+        const win = Math.random() * 100 < chance;
+        inventory.splice(selectedUpgItem.index, 1);
+        if (win) {
+            const targetPrice = parseInt(document.getElementById('upg-target-price').innerText);
+            const newItem = globalSkins.find(x => x.price === targetPrice);
+            inventory.push(newItem);
+            alert("УСПЕХ!");
+        } else alert("СГОРЕЛ!");
+        selectedUpgItem = null;
+        save(); switchPage('profile'); renderProfile();
     }
 
+    function doSvo() {
+        if (svoItems.length < 3) return alert("Нужно 3 предмета!");
+        const total = svoItems.reduce((a, b) => a + b.price, 0);
+        // Контракт дает скин от 0.5x до 2.0x суммы
+        const resultPrice = total * (0.5 + Math.random() * 1.5);
+        const newItem = globalSkins.reduce((prev, curr) => Math.abs(curr.price - resultPrice) < Math.abs(prev.price - resultPrice) ? curr : prev);
+        
+        // Удаляем
+        const indices = svoItems.map(x => x.index).sort((a,b) => b-a);
+        indices.forEach(idx => inventory.splice(idx, 1));
+        
+        inventory.push(newItem);
+        svoItems = [];
+        alert("Контракт подписан! Получено: " + newItem.name);
+        save(); switchPage('profile'); renderProfile();
+    }
 </script>
-
 </body>
 </html>
