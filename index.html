@@ -217,7 +217,7 @@
 <body>
 
 <header>
-    <div class="logo">Tikhoretsk<span>Drop</span></div>
+    <div class="logo">Pitbike<span>Drop</span></div>
     <div class="nav-links">
         <a class="nav-link active" onclick="switchPage('cases')">Кейсы</a>
         <a class="nav-link" onclick="switchPage('upgrade')">Апгрейды</a>
@@ -231,7 +231,7 @@
 </header>
 
 <div id="page-cases" class="page active">
-    <h1 class="page-title">Премиум Кейсы & Chicken Gun</h1>
+    <h1 class="page-title">Премиум Кейсы</h1>
     <div class="case-grid" id="cases-grid"></div>
 </div>
 
@@ -625,7 +625,15 @@
     function calculateUpgrade() {
         if(!upgMyItem) return;
         upgTargetPrice = Math.floor(upgMyItem.price * upgMultiplier);
-        let possibleTargets = globalSkins.filter(s => s.price >= upgTargetPrice * 0.9 && s.price <= upgTargetPrice * 1.5);
+        // Фильтруем скины, цена которых максимально близка к целевой (от 95% до 110% от цены апгрейда)
+let possibleTargets = globalSkins.filter(s => s.price >= upgTargetPrice * 0.95 && s.price <= upgTargetPrice * 1.1);
+
+// Если в таком узком диапазоне ничего нет, ищем просто ближайший по цене
+if (possibleTargets.length === 0) {
+    possibleTargets = [globalSkins.reduce((prev, curr) => 
+        Math.abs(curr.price - upgTargetPrice) < Math.abs(prev.price - upgTargetPrice) ? curr : prev
+    )];
+}
         let targetSkin = possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
         
         if(!targetSkin) {
@@ -680,7 +688,7 @@
                 document.getElementById('upg-chance').innerText = "WIN!";
                 document.getElementById('upg-chance').style.color = "var(--accent)";
                 inventory.splice(upgMyItemIndex, 1); inventory.push(targetSkin);
-                setTimeout(() => alert(`Хорош! Ты скрафтил ${targetSkin.name}`), 100);
+                setTimeout(() => alert(`О все высший дiнiс, спасибо! Ты скрафтил ${targetSkin.name}`), 100);
             } else {
                 document.getElementById('upg-chance').innerText = "LOSE";
                 document.getElementById('upg-chance').style.color = "var(--red)";
